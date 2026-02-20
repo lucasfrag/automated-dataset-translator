@@ -145,17 +145,6 @@ Allows:
 
 ---
 
-## 📁 Supported formats
-
-| Format  | Supported |
-| ------- | --------- |
-| CSV     | ✅         |
-| JSON    | ✅         |
-| JSONL   | ✅         |
-| Parquet | ✅         |
-
----
-
 ## 🎯 Example
 
 Input:
