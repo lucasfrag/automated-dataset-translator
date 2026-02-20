@@ -1,6 +1,6 @@
 # 🌍 Auto Dataset Translator
 
-> Automatically translate structured datasets (CSV, JSON, JSONL, Parquet) using LLMs via Ollama — with caching, parallelism, checkpointing, and retry support.
+> Automatically translate structured datasets (CSV, JSON, JSONL, TSV, Parquet) using LLMs via Ollama — with caching, parallelism, checkpointing, and retry support.
 
 ---
 
@@ -12,6 +12,7 @@
   * CSV
   * JSON
   * JSONL
+  * TSV
   * Parquet
 * 🧠 Uses **local models via Ollama**
 * ⚡ Parallel processing (multi-threaded)
@@ -204,17 +205,6 @@ Features designed for scalability:
 * Thread-safe SQLite backend
 
 Supports datasets with millions of rows.
-
----
-
-## 🧪 Recommended models
-
-| Model       | Quality | Speed |
-| ----------- | ------- | ----- |
-| llama3.1:8b | ⭐⭐⭐⭐    | ⭐⭐⭐⭐  |
-| mistral     | ⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐ |
-| qwen2.5     | ⭐⭐⭐⭐⭐   | ⭐⭐⭐   |
-| phi3        | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ |
 
 ---
 
