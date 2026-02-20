@@ -1,5 +1,4 @@
 import ollama
-import re
 
 from auto_dataset_translator.translator.cache import TranslationCache
 from auto_dataset_translator.translator.retry import (
@@ -14,20 +13,62 @@ class OllamaClient:
         self,
         model,
         target_lang,
-        source_lang=None,
+        source_lang="English",
         retry_config=None,
     ):
 
         self.model = model
         self.target_lang = target_lang
-        self.source_lang = source_lang
+        self.source_lang = source_lang or "English"
 
         self.cache = TranslationCache()
 
         self.retry_config = retry_config or RetryConfig()
 
     # -------------------------
-    # CLEAN OUTPUT AGGRESSIVELY
+    # FEW-SHOT PROMPT (CRITICAL)
+    # -------------------------
+
+    def _build_messages(self, text):
+
+        examples = [
+            ("Hello world", "Olá mundo"),
+            ("Good morning", "Bom dia"),
+            ("Test statement", "Declaração de teste"),
+            ("Opinion about ML", "Opinião sobre ML"),
+            ("Machine learning is amazing", "Aprendizado de máquina é incrível"),
+            ("Dataset statement", "Declaração do conjunto de dados"),
+        ]
+
+        few_shot = ""
+
+        for src, tgt in examples:
+            few_shot += (
+                f"{self.source_lang}: {src}\n"
+                f"{self.target_lang}: {tgt}\n\n"
+            )
+
+        prompt = (
+            "Translate the following text.\n"
+            "Return ONLY the translation.\n\n"
+            f"{few_shot}"
+            f"{self.source_lang}: {text}\n"
+            f"{self.target_lang}:"
+        )
+
+        return [
+            {
+                "role": "system",
+                "content": "You are a translation engine.",
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ]
+
+    # -------------------------
+    # CLEAN OUTPUT
     # -------------------------
 
     def _clean_output(self, text):
@@ -37,67 +78,19 @@ class OllamaClient:
 
         text = text.strip()
 
-        # remove common hallucination patterns
-        patterns = [
-            r"\(Note:.*?\)",
-            r"<TEXT>.*?</TEXT>",
-            r"<.*?>",
-            r"^Translation:\s*",
-            r"^Translated text:\s*",
-            r"^Here is the translation:\s*",
-        ]
+        # take only first line
+        text = text.split("\n")[0]
 
-        for pattern in patterns:
-            text = re.sub(pattern, "", text, flags=re.DOTALL | re.IGNORECASE)
+        # remove quotes
+        text = text.strip('"').strip("'")
 
-        # remove quotes if entire string quoted
-        if text.startswith('"') and text.endswith('"'):
-            text = text[1:-1]
+        # remove trailing punctuation artifacts
+        text = text.strip()
 
-        return text.strip()
+        return text
 
     # -------------------------
-    # BUILD PROMPT
-    # -------------------------
-
-    def _build_messages(self, text):
-
-        system_message = {
-            "role": "system",
-            "content": (
-                "You are a translation engine. "
-                "Translate text exactly. "
-                "Do not explain. "
-                "Do not add comments. "
-                "Do not add notes. "
-                "Return only the translated text."
-            ),
-        }
-
-        if self.source_lang:
-
-            user_message = {
-                "role": "user",
-                "content": (
-                    f"Translate from {self.source_lang} to {self.target_lang}:\n"
-                    f"{text}"
-                ),
-            }
-
-        else:
-
-            user_message = {
-                "role": "user",
-                "content": (
-                    f"Translate to {self.target_lang}:\n"
-                    f"{text}"
-                ),
-            }
-
-        return [system_message, user_message]
-
-    # -------------------------
-    # API CALL
+    # OLLAMA CALL
     # -------------------------
 
     def _translate_api(self, text):
@@ -110,8 +103,8 @@ class OllamaClient:
             options={
                 "temperature": 0,
                 "top_p": 1,
-                "repeat_penalty": 1.2,
-            }
+                "repeat_penalty": 1.0,
+            },
         )
 
         raw = response["message"]["content"]
@@ -121,7 +114,7 @@ class OllamaClient:
         return cleaned
 
     # -------------------------
-    # PUBLIC TRANSLATE
+    # PUBLIC METHOD
     # -------------------------
 
     def translate(self, text):
@@ -129,6 +122,7 @@ class OllamaClient:
         if not isinstance(text, str) or not text.strip():
             return text
 
+        # CACHE CHECK
         cached = self.cache.get(
             text,
             self.model,
@@ -138,11 +132,13 @@ class OllamaClient:
         if cached:
             return cached
 
+        # RETRY TRANSLATION
         translated = retry_with_backoff(
             lambda: self._translate_api(text),
             self.retry_config,
         )
 
+        # SAVE CACHE
         self.cache.set(
             text,
             translated,
