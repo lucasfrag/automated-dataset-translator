@@ -204,8 +204,6 @@ Features designed for scalability:
 * Checkpoint resume
 * Thread-safe SQLite backend
 
-Supports datasets with millions of rows.
-
 ---
 
 ## 🛠️ Requirements
