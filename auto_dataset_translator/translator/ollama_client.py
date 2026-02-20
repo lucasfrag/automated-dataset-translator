@@ -1,4 +1,5 @@
 import ollama
+from auto_dataset_translator.translator.cache import TranslationCache
 
 
 class OllamaClient:
@@ -9,11 +10,24 @@ class OllamaClient:
         self.target_lang = target_lang
         self.source_lang = source_lang
 
-    def translate(self, text: str):
+        self.cache = TranslationCache()
+
+    def translate(self, text):
 
         if not isinstance(text, str) or not text.strip():
             return text
 
+        # CHECK CACHE
+        cached = self.cache.get(
+            text,
+            self.model,
+            self.target_lang
+        )
+
+        if cached:
+            return cached
+
+        # BUILD PROMPT
         if self.source_lang:
 
             prompt = (
@@ -37,4 +51,14 @@ class OllamaClient:
             ]
         )
 
-        return response["message"]["content"].strip()
+        translated = response["message"]["content"].strip()
+
+        # SAVE CACHE
+        self.cache.set(
+            text,
+            translated,
+            self.model,
+            self.target_lang
+        )
+
+        return translated
