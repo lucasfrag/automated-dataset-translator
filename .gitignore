@@ -1,3 +1,5 @@
+__pycache__/
+
 dataset_*.csv
 translation_cache.db
-__pycache__/
+checkpoint.db
