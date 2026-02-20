@@ -2,35 +2,56 @@ from auto_dataset_translator.dataset.loader import load_dataset
 from auto_dataset_translator.dataset.writer import write_dataset
 from auto_dataset_translator.translator.ollama_client import OllamaClient
 from auto_dataset_translator.translator.retry import RetryConfig
+from auto_dataset_translator.checkpoint.manager import CheckpointManager
 
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
+import os
 
+def translate_column(
+    df,
+    column,
+    translator,
+    workers,
+    dataset_name,
+):
 
-def translate_column(df, column, translator, workers):
+    checkpoint = CheckpointManager()
 
     texts = df[column].tolist()
 
+    results = [None] * len(texts)
+
+    def process_row(args):
+
+        idx, text = args
+
+        if checkpoint.is_done(dataset_name, column, idx):
+
+            return idx, text
+
+        translated = translator.translate(text)
+
+        checkpoint.mark_done(dataset_name, column, idx)
+
+        return idx, translated
+
+    work_items = list(enumerate(texts))
+
     if workers == 1:
 
-        return [
-            translator.translate(text)
-            for text in tqdm(texts)
-        ]
+        iterator = map(process_row, work_items)
 
     else:
 
-        with ThreadPoolExecutor(max_workers=workers) as executor:
+        executor = ThreadPoolExecutor(max_workers=workers)
+        iterator = executor.map(process_row, work_items)
 
-            results = list(
-                tqdm(
-                    executor.map(translator.translate, texts),
-                    total=len(texts)
-                )
-            )
+    for idx, translated in tqdm(iterator, total=len(texts)):
 
-        return results
+        results[idx] = translated
 
+    return results
 
 def run(
     input_path,
@@ -41,21 +62,22 @@ def run(
     source_lang=None,
     workers=1,
     max_retries=5,
-    retry_delay=1.0
+    retry_delay=1.0,
 ):
 
     print("Loading dataset...")
     df = load_dataset(input_path)
 
+    # ADICIONE ESTA LINHA AQUI ↓↓↓
+    dataset_name = os.path.basename(input_path)
+
     print("Initializing translator...")
 
-    # CREATE RETRY CONFIG HERE
     retry_config = RetryConfig(
         max_retries=max_retries,
         base_delay=retry_delay,
     )
 
-    # CREATE TRANSLATOR HERE
     translator = OllamaClient(
         model=model,
         target_lang=target_lang,
@@ -72,11 +94,13 @@ def run(
 
         print(f"Translating column: {col}")
 
+        
         df[col] = translate_column(
             df,
             col,
             translator,
-            workers
+            workers,
+            dataset_name,  
         )
 
     print("Writing output dataset...")
