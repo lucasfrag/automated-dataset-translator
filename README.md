@@ -204,20 +204,17 @@ Features designed for scalability:
 
 ## 🧠 Recommended Models for Translation (Ollama)
 
-The following models are fully compatible with Ollama and provide excellent multilingual translation performance.
-
-| Model | Parameters | Quality | Speed | RAM Required | Recommendation | Notes |
-|------|------------|---------|-------|--------------|----------------|------|
-| **qwen3:14b** ⭐ | 14B | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | 🥇 Best overall | Best balance of quality and performance |
-| **qwen3:32b** | 32B | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32–48 GB | 🥇 Best quality | Highest translation accuracy |
-| **qwen3:8b** | 8B | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 8–12 GB | 🥇 Best for laptops | Fast and efficient |
-| **mixtral:8x7b** | 46B (MoE) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32+ GB | 🥇 Production use | Extremely strong multilingual performance |
-| **gemma3:27b** | 27B | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 24–32 GB | 🥇 Excellent alternative | Very stable translations |
-| **command-r-plus** | 104B | ⭐⭐⭐⭐⭐ | ⭐⭐ | 48+ GB | 🥇 Enterprise | Best instruction-following |
-| **gemma3:12b** | 12B | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | 🥈 Recommended | Great balance |
-| **mistral-small3.2** | 24B | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | 🥈 Recommended | Fast and reliable |
-| **phi3.5:medium** | 14B | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | 🥈 Lightweight | Efficient and capable |
-| **qwen3:4b** | 4B | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 6–8 GB | 🥉 Lightweight | Good for low-resource systems |
+| Model | Quality | Speed | RAM | Use Case |
+|------|---------|-------|-----|----------|
+| **qwen3:14b** ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | Best overall |
+| qwen3:32b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32+ GB | Best quality |
+| qwen3:8b | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 8–12 GB | Best for laptops |
+| mixtral:8x7b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32+ GB | Production |
+| gemma3:27b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 24–32 GB | Stable alternative |
+| gemma3:12b | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | Balanced |
+| mistral-small3.2 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | Fast |
+| phi3.5:medium | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | Lightweight |
+| qwen3:4b | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 6–8 GB | Low RAM |
 
 ---
 
