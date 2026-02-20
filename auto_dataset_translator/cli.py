@@ -50,4 +50,12 @@ def parse_args():
         help="Source language (optional)"
     )
 
+    parser.add_argument(
+        "--workers",
+        "-w",
+        type=int,
+        default=1,
+        help="Number of parallel workers"
+    )
+
     return parser.parse_args()
