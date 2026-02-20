@@ -1,4 +1,4 @@
-# 🌍 Auto Dataset Translator
+# 🌍 Automated Dataset Translator
 
 > Automatically translate structured datasets (CSV, JSON, JSONL, TSV, Parquet) using LLMs via Ollama — with caching, parallelism, checkpointing, and retry support.
 
