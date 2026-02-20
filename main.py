@@ -16,6 +16,9 @@ def main():
         workers=args.workers,
         max_retries=args.max_retries,
         retry_delay=args.retry_delay,
+        force=args.force,
+        reset_cache=args.reset_cache,
+        reset_checkpoint=args.reset_checkpoint,
     )
 
 

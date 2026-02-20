@@ -72,4 +72,20 @@ def parse_args():
         help="Base retry delay in seconds"
     )
 
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force retranslation (ignore cache and checkpoint)"
+    )
+
+    parser.add_argument(
+        "--reset-cache",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--reset-checkpoint",
+        action="store_true",
+    )    
+
     return parser.parse_args()

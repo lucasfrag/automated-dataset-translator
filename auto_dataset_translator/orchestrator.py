@@ -63,7 +63,22 @@ def run(
     workers=1,
     max_retries=5,
     retry_delay=1.0,
+    force=False,
+    reset_cache=False,
+    reset_checkpoint=False,
 ):
+    
+    if force:
+        reset_cache = True
+        reset_checkpoint = True
+
+    if reset_cache and os.path.exists("translation_cache.db"):
+        print("Resetting cache...")
+        os.remove("translation_cache.db")
+
+    if reset_checkpoint and os.path.exists("checkpoint.db"):
+        print("Resetting checkpoint...")
+        os.remove("checkpoint.db")
 
     print("Loading dataset...")
     df = load_dataset(input_path)
