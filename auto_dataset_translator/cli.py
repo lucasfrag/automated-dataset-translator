@@ -58,4 +58,18 @@ def parse_args():
         help="Number of parallel workers"
     )
 
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=5,
+        help="Maximum retry attempts"
+    )
+
+    parser.add_argument(
+        "--retry-delay",
+        type=float,
+        default=1.0,
+        help="Base retry delay in seconds"
+    )
+
     return parser.parse_args()

@@ -1,10 +1,21 @@
 import ollama
+
 from auto_dataset_translator.translator.cache import TranslationCache
+from auto_dataset_translator.translator.retry import (
+    retry_with_backoff,
+    RetryConfig,
+)
 
 
 class OllamaClient:
 
-    def __init__(self, model, target_lang, source_lang=None):
+    def __init__(
+        self,
+        model,
+        target_lang,
+        source_lang=None,
+        retry_config=None,
+    ):
 
         self.model = model
         self.target_lang = target_lang
@@ -12,22 +23,10 @@ class OllamaClient:
 
         self.cache = TranslationCache()
 
-    def translate(self, text):
+        self.retry_config = retry_config or RetryConfig()
 
-        if not isinstance(text, str) or not text.strip():
-            return text
+    def _translate_api(self, text):
 
-        # CHECK CACHE
-        cached = self.cache.get(
-            text,
-            self.model,
-            self.target_lang
-        )
-
-        if cached:
-            return cached
-
-        # BUILD PROMPT
         if self.source_lang:
 
             prompt = (
@@ -51,14 +50,35 @@ class OllamaClient:
             ]
         )
 
-        translated = response["message"]["content"].strip()
+        return response["message"]["content"].strip()
 
-        # SAVE CACHE
+    def translate(self, text):
+
+        if not isinstance(text, str) or not text.strip():
+            return text
+
+        # CACHE HIT
+        cached = self.cache.get(
+            text,
+            self.model,
+            self.target_lang,
+        )
+
+        if cached:
+            return cached
+
+        # RETRY LOGIC
+        translated = retry_with_backoff(
+            lambda: self._translate_api(text),
+            self.retry_config,
+        )
+
+        # CACHE SAVE
         self.cache.set(
             text,
             translated,
             self.model,
-            self.target_lang
+            self.target_lang,
         )
 
         return translated

@@ -36,18 +36,20 @@ class TranslationCache:
 
         key = f"{model}:{target_lang}:{text}"
 
-        return hashlib.sha256(key.encode()).hexdigest()
+        return hashlib.sha256(key.encode("utf-8")).hexdigest()
 
     def get(self, text, model, target_lang):
 
         h = self._hash(text, model, target_lang)
 
-        cursor = self.conn.execute(
-            "SELECT translated_text FROM translations WHERE hash=?",
-            (h,)
-        )
+        with self.lock:
 
-        row = cursor.fetchone()
+            cursor = self.conn.execute(
+                "SELECT translated_text FROM translations WHERE hash=?",
+                (h,)
+            )
+
+            row = cursor.fetchone()
 
         return row[0] if row else None
 

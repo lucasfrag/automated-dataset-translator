@@ -13,6 +13,9 @@ def main():
         model=args.model,
         target_lang=args.target_lang,
         source_lang=args.source_lang,
+        workers=args.workers,
+        max_retries=args.max_retries,
+        retry_delay=args.retry_delay,
     )
 
 

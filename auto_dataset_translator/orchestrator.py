@@ -1,6 +1,7 @@
 from auto_dataset_translator.dataset.loader import load_dataset
 from auto_dataset_translator.dataset.writer import write_dataset
 from auto_dataset_translator.translator.ollama_client import OllamaClient
+from auto_dataset_translator.translator.retry import RetryConfig
 
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
@@ -39,16 +40,27 @@ def run(
     target_lang,
     source_lang=None,
     workers=1,
+    max_retries=5,
+    retry_delay=1.0
 ):
 
     print("Loading dataset...")
     df = load_dataset(input_path)
 
     print("Initializing translator...")
+
+    # CREATE RETRY CONFIG HERE
+    retry_config = RetryConfig(
+        max_retries=max_retries,
+        base_delay=retry_delay,
+    )
+
+    # CREATE TRANSLATOR HERE
     translator = OllamaClient(
         model=model,
         target_lang=target_lang,
         source_lang=source_lang,
+        retry_config=retry_config,
     )
 
     print(f"Using {workers} workers")
