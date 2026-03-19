@@ -30,8 +30,8 @@
 Clone the repository:
 
 ```bash
-git clone https://github.com/lucasfrag/automated-dataset-translator.git
-cd automated-dataset-translator
+git clone https://github.com/lucasfrag/dataset-translator.git
+cd dataset-translator
 ```
 
 Install dependencies:
