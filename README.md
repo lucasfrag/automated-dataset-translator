@@ -1,4 +1,4 @@
-# 🌍 Automated Dataset Translator
+# 🌍 Dataset Translator
 
 > Automatically translate structured datasets (CSV, JSON, JSONL, TSV, Parquet) using LLMs via Ollama — with caching, parallelism, checkpointing, and retry support.
 
@@ -30,8 +30,8 @@
 Clone the repository:
 
 ```bash
-git clone https://github.com/lucasfrag/auto-dataset-translator.git
-cd auto-dataset-translator
+git clone https://github.com/lucasfrag/dataset-translator.git
+cd dataset-translator
 ```
 
 Install dependencies:
@@ -200,6 +200,41 @@ Features designed for scalability:
 * Python 3.9+
 * Ollama
 
+---
+
+## 🧠 Recommended Models for Translation (Ollama)
+
+| Model | Quality | Speed | RAM | Use Case |
+|------|---------|-------|-----|----------|
+| **qwen3:14b** ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | Best overall |
+| qwen3:32b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32+ GB | Best quality |
+| qwen3:8b | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 8–12 GB | Best for laptops |
+| mixtral:8x7b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 32+ GB | Production |
+| gemma3:27b | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | 24–32 GB | Stable alternative |
+| gemma3:12b | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | Balanced |
+| mistral-small3.2 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 16–24 GB | Fast |
+| phi3.5:medium | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 12–16 GB | Lightweight |
+| qwen3:4b | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 6–8 GB | Low RAM |
+
+---
+
+## 🥇 Best Model by Hardware
+
+| Hardware | Recommended Model |
+|--------|------------------|
+| 8 GB RAM | qwen3:4b |
+| 16 GB RAM | qwen3:8b ⭐ |
+| 24 GB RAM | qwen3:14b ⭐⭐⭐ |
+| 32 GB RAM | gemma3:27b or mixtral:8x7b |
+| 48+ GB RAM | qwen3:32b or command-r-plus |
+
+---
+
+## 🚀 Installation example
+
+```bash
+ollama pull qwen3:14b
+```
 ---
 
 ## 📜 License
