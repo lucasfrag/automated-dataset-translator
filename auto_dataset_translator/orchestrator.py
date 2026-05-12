@@ -6,7 +6,10 @@ from auto_dataset_translator.checkpoint.manager import CheckpointManager
 
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
+from pathlib import Path
+
 import os
+
 
 def translate_column(
     df,
@@ -14,9 +17,11 @@ def translate_column(
     translator,
     workers,
     dataset_name,
+    checkpoint_path,
 ):
 
-    checkpoint = CheckpointManager()
+    # AGORA USA CHECKPOINT DO DATASET
+    checkpoint = CheckpointManager(checkpoint_path)
 
     texts = df[column].tolist()
 
@@ -27,10 +32,8 @@ def translate_column(
         idx, text = args
 
         if checkpoint.is_done(dataset_name, column, idx):
-
             return idx, text
 
-        #translated = translator.translate(text)
         translated = translate_value(text, translator)
 
         checkpoint.mark_done(dataset_name, column, idx)
@@ -49,12 +52,13 @@ def translate_column(
         iterator = executor.map(process_row, work_items)
 
     for idx, translated in tqdm(iterator, total=len(texts)):
-
         results[idx] = translated
 
     return results
 
+
 def translate_value(value, translator):
+
     if isinstance(value, list):
         return [translate_value(v, translator) for v in value]
 
@@ -63,6 +67,7 @@ def translate_value(value, translator):
 
     else:
         return value
+
 
 def run(
     input_path,
@@ -80,24 +85,28 @@ def run(
     debug=False,
     host="http://localhost:11434",
 ):
-    
+
+    # PEGA NOME DO DATASET SEM EXTENSÃO
+    dataset_name = Path(input_path).stem
+
+    # ARQUIVOS SEPARADOS POR DATASET
+    checkpoint_path = f"{dataset_name}.checkpoint.json"
+    cache_db_path = f"{dataset_name}.translations.db"
+
     if force:
         reset_cache = True
         reset_checkpoint = True
 
-    if reset_cache and os.path.exists("translation_cache.db"):
+    if reset_cache and os.path.exists(cache_db_path):
         print("Resetting cache...")
-        os.remove("translation_cache.db")
+        os.remove(cache_db_path)
 
-    if reset_checkpoint and os.path.exists("checkpoint.db"):
+    if reset_checkpoint and os.path.exists(checkpoint_path):
         print("Resetting checkpoint...")
-        os.remove("checkpoint.db")
+        os.remove(checkpoint_path)
 
     print("Loading dataset...")
     df = load_dataset(input_path)
-
-    # ADICIONE ESTA LINHA AQUI ↓↓↓
-    dataset_name = os.path.basename(input_path)
 
     print("Initializing translator...")
 
@@ -113,8 +122,12 @@ def run(
         retry_config=retry_config,
         debug=debug,
         host=host,
+
+        # CACHE DO DATASET
+        cache_db_path=cache_db_path,
     )
 
+    print(f"Using Ollama host: {host}")
     print(f"Using {workers} workers")
 
     for col in columns:
@@ -124,13 +137,13 @@ def run(
 
         print(f"Translating column: {col}")
 
-        
         df[col] = translate_column(
             df,
             col,
             translator,
             workers,
-            dataset_name,  
+            dataset_name,
+            checkpoint_path,
         )
 
     print("Writing output dataset...")

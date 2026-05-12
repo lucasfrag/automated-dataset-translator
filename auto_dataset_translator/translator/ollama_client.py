@@ -17,20 +17,30 @@ class OllamaClient:
         retry_config=None,
         debug=False,
         host="http://localhost:11434",
+
+        # NOVO
+        cache_db_path="translations.db",
     ):
 
         self.model = model
         self.target_lang = target_lang
         self.source_lang = source_lang or "English"
         self.debug = debug
-        self.cache = TranslationCache()
+
+        # AGORA USA DB DO DATASET
+        self.cache = TranslationCache(cache_db_path)
+
         self.host = host
         self.retry_config = retry_config or RetryConfig()
 
-        self.client = Client(self.host)
+        self.client = Client(host=self.host)
+
         print(f"Initialized Ollama client with host: {self.host}")
+        print(f"Using translation cache: {cache_db_path}")
 
-
+    # -------------------------
+    # BUILD PROMPT
+    # -------------------------
 
     def _build_messages(self, text):
 
@@ -66,7 +76,7 @@ class OllamaClient:
         # remove quotes
         text = text.strip('"').strip("'")
 
-        # remove trailing punctuation artifacts
+        # remove trailing artifacts
         text = text.strip()
 
         return text
@@ -112,10 +122,12 @@ class OllamaClient:
         )
 
         if cached:
+
             if self.debug:
                 print("\n[CACHE HIT]")
                 print(f"SOURCE: {text}")
                 print(f"TARGET: {cached}")
+
             return cached
 
         # RETRY TRANSLATION
