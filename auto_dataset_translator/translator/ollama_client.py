@@ -26,45 +26,22 @@ class OllamaClient:
 
         self.retry_config = retry_config or RetryConfig()
 
-    # -------------------------
-    # FEW-SHOT PROMPT (CRITICAL)
-    # -------------------------
+
 
     def _build_messages(self, text):
-
-        examples = [
-            ("Hello world", "Olá mundo"),
-            ("Good morning", "Bom dia"),
-            ("Test statement", "Declaração de teste"),
-            ("Opinion about ML", "Opinião sobre ML"),
-            ("Machine learning is amazing", "Aprendizado de máquina é incrível"),
-            ("Dataset statement", "Declaração do conjunto de dados"),
-        ]
-
-        few_shot = ""
-
-        for src, tgt in examples:
-            few_shot += (
-                f"{self.source_lang}: {src}\n"
-                f"{self.target_lang}: {tgt}\n\n"
-            )
-
-        prompt = (
-            "Translate the following text.\n"
-            "Return ONLY the translation.\n\n"
-            f"{few_shot}"
-            f"{self.source_lang}: {text}\n"
-            f"{self.target_lang}:"
-        )
 
         return [
             {
                 "role": "system",
-                "content": "You are a translation engine.",
+                "content": (
+                    f"Translate from {self.source_lang} "
+                    f"to {self.target_lang}. "
+                    "Only output the translation."
+                ),
             },
             {
                 "role": "user",
-                "content": prompt,
+                "content": text,
             },
         ]
 
@@ -145,8 +122,8 @@ class OllamaClient:
 
         if self.debug:
             print("\n[TRANSLATED]")
-            print(f"SOURCE: {text}")
-            print(f"TARGET: {translated}")
+            print(f"👉 ORIGINAL: {text}")
+            print(f"✅ TRANSLATED: {translated}")
 
         # SAVE CACHE
         self.cache.set(
