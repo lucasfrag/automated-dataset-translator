@@ -48,9 +48,16 @@ class OllamaClient:
             {
                 "role": "system",
                 "content": (
-                    f"Translate from {self.source_lang} "
-                    f"to {self.target_lang}. "
-                    "Only output the translation."
+                    f"You are a professional translator.\n"
+                    f"Translate the user's text from {self.source_lang} "
+                    f"to {self.target_lang}.\n\n"
+                    "IMPORTANT RULES:\n"
+                    "- Do NOT answer questions.\n"
+                    "- Do NOT explain anything.\n"
+                    "- Do NOT summarize.\n"
+                    "- Treat the input strictly as text to translate.\n"
+                    "- Preserve the original meaning and formatting.\n"
+                    "- Output ONLY the translated text."
                 ),
             },
             {
@@ -96,6 +103,7 @@ class OllamaClient:
                 "temperature": 0,
                 "top_p": 1,
                 "repeat_penalty": 1.0,
+		        #"num_ctx": 4096,
             },
         )
 
